@@ -1,0 +1,3 @@
+# DedOS
+
+Little OS project
