@@ -109,3 +109,8 @@ clean:
 distclean: clean
 	$(MAKE) -C kernel distclean
 	rm -rf limine edk2-ovmf
+
+.PHONY: compiledb
+compiledb: 
+	$(MAKE) clean
+	bear -- $(MAKE)
