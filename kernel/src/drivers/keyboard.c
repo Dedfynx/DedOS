@@ -9,7 +9,6 @@ static char keyboard_buffer[KEYBOARD_BUF_SIZE];
 static uint8_t buf_head = 0;
 static uint8_t buf_tail = 0;
 
-// Scancode set 1 -> ASCII (pas de shift)
 static const char scancode_table[] = {
     0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
     '\b', '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
@@ -38,25 +37,21 @@ static void buf_push(char c) {
 void keyboard_handler(void) {
     uint8_t scancode = inb(KEYBOARD_DATA_PORT);
 
-    // Touche relâchée (bit 7 à 1)
     if (scancode & 0x80) {
         uint8_t released = scancode & 0x7F;
-        if (released == 0x2A || released == 0x36)  // shift gauche/droit
-            shift_pressed = 0;
+        if (released == 0x2A || released == 0x36) shift_pressed = 0;
         return;
     }
 
-    // Touches spéciales
     if (scancode == 0x2A || scancode == 0x36) {  // shift
         shift_pressed = 1;
         return;
     }
-    if (scancode == 0x3A) {  // caps lock
+    if (scancode == 0x3A) {
         caps_lock = !caps_lock;
         return;
     }
 
-    // Conversion scancode -> ASCII
     if (scancode < sizeof(scancode_table)) {
         char c = 0;
         uint8_t use_upper = shift_pressed ^ caps_lock;
@@ -79,5 +74,4 @@ char keyboard_getchar(void) {
 }
 
 void keyboard_init(void) {
-    // Le handler est branché via l'IDT/PIC, rien à faire ici pour l'instant
 }

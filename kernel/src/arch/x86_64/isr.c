@@ -35,6 +35,6 @@ void isr_handler(interrupt_frame_t* frame) {
             kprintf("key: %x\n", scancode);
             keyboard_handler();
         }
-        pic_eoi(irq);
+        pic_sendEOI(irq);
     }
 }

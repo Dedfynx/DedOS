@@ -16,7 +16,7 @@ void idt_set_entry(uint8_t vector, void* handler, uint8_t flags) {
     idt[vector].isr_low = addr & 0xFFFF;
     idt[vector].isr_mid = (addr >> 16) & 0xFFFF;
     idt[vector].isr_high = (addr >> 32) & 0xFFFFFFFF;
-    idt[vector].kernel_cs = 0x08;  // kernel code segment
+    idt[vector].kernel_cs = 0x08;
     idt[vector].ist = 0;
     idt[vector].attributes = flags;
     idt[vector].reserved = 0;
