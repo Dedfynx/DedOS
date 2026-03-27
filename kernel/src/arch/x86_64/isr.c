@@ -1,6 +1,7 @@
 #include <isr.h>
 #include <pic.h>
 #include <io.h>
+#include <keyboard.h>
 #include <kprintf.h>
 
 static const char* exception_names[] = {
@@ -29,12 +30,10 @@ void isr_handler(interrupt_frame_t* frame) {
         __asm__ volatile("cli; hlt");
     } else {
         uint8_t irq = frame->vector - 32;
-        if (irq == 0) {
-            kprintf("timer tick\n");
-        } else if (irq == 1) {
-            // lire le scancode du clavier
+        if (irq == 1) {
             uint8_t scancode = inb(0x60);
             kprintf("key: %x\n", scancode);
+            keyboard_handler();
         }
         pic_eoi(irq);
     }

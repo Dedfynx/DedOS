@@ -6,10 +6,11 @@
 #include <flanterm.h>
 #include <flanterm_backends/fb.h>
 
-#include "kprintf.h"
-#include "gdt.h"
-#include "idt.h"
-#include "pic.h"
+#include <kprintf.h>
+#include <gdt.h>
+#include <idt.h>
+#include <pic.h>
+#include <keyboard.h>
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -88,8 +89,11 @@ void kmain(void) {
         }
     }
 
-    pic_unmask(1);  // clavier
     __asm__ volatile("sti");
+
+    keyboard_init();
+    pic_unmask(1);
+    kprintf("Clavier initialise\n");
 
     kprintf("DedOS v0.1\n");
     kprintf("Framebuffer: %u x %u\n", framebuffer->width, framebuffer->height);
@@ -98,6 +102,10 @@ void kmain(void) {
     kprintf("Valeur : %d (hex: %x)\n", 255, 255);
     kprintf("Pointeur : %p\n", (void*)0x12345678);
     kprintf("Pourcentage : 50%%\n");
+
+    kprintf("Test clavier : ");
+    char c = keyboard_getchar();
+    kprintf("%c\n", c);
 
     // We're done, just hang...
     hcf();

@@ -93,6 +93,7 @@ override CPPFLAGS := \
     -I src/arch/x86_64 \
     -I src/kernel \
     -I src/mm \
+    -I src/drivers \
     -I limine-protocol/include \
     -isystem freestnd-c-hdrs/include \
     $(CPPFLAGS) \
