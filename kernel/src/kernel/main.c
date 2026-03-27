@@ -12,6 +12,7 @@
 #include <pic.h>
 #include <keyboard.h>
 #include <pmm.h>
+#include <vmm.h>
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -99,6 +100,7 @@ void kmain(void) {
     }
 
     pmm_init(memmap_request.response, hhdm_request.response->offset);
+    vmm_init();
     __asm__ volatile("sti");
 
     keyboard_init();
@@ -109,16 +111,12 @@ void kmain(void) {
     kprintf("Framebuffer: %u x %u\n", framebuffer->width, framebuffer->height);
     kprintf("Adresse kernel: %p\n", &kmain);
     // Test
-    kprintf("Valeur : %d (hex: %x)\n", 255, 255);
-    kprintf("Pointeur : %p\n", (void*)0x12345678);
-    kprintf("Pourcentage : 50%%\n");
-    // Test
     void* p1 = pmm_alloc();
     void* p2 = pmm_alloc();
-    kprintf("p1: %p  p2: %p\n", p1, p2);
+    kprintf("PMM Alloc Test : p1: %p  p2: %p\n", p1, p2);
     pmm_free(p1);
     void* p3 = pmm_alloc();
-    kprintf("p3: %p (devrait etre egal a p1)\n", p3);
+    kprintf("PMM Alloc apres Free : p3: %p (devrait etre egal a p1)\n", p3);
 
     // We're done, just hang...
     hcf();

@@ -7,3 +7,10 @@ Little OS Project
 - [x] GDT
 - [x] IDT + ISR
 - [x] PIC 8259 + IRQ
+- [x] PMM (Bitmap Allocator)
+- [x] VMM
+- [ ] ACPI / MADT
+- [ ] APIC
+- [ ] Timer
+- [ ] Scheduler
+- [ ] VFS

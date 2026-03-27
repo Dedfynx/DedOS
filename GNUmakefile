@@ -34,6 +34,8 @@ run-noapic: $(IMAGE_NAME).iso
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
 		-cpu qemu64,-apic \
+		-no-reboot \
+		-no-shutdown \
 		$(QEMUFLAGS)
 
 .PHONY: run-uefi
