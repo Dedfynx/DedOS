@@ -1,5 +1,6 @@
 #include <idt.h>
 #include <isr.h>
+#include <pic.h>
 #include <stdint.h>
 
 #define IDT_SIZE 256
@@ -8,6 +9,7 @@ static idt_entry_t idt[IDT_SIZE];
 static idtr_t idtr;
 
 extern void* isr_stub_table[];
+extern void* irq_stub_table[];
 
 void idt_set_entry(uint8_t vector, void* handler, uint8_t flags) {
     uint64_t addr = (uint64_t)handler;
@@ -27,5 +29,11 @@ void idt_init(void) {
     for (uint8_t i = 0; i < 32; i++) {
         idt_set_entry(i, isr_stub_table[i], 0x8E);
     }
+
+    pic_init();
+    for (uint8_t i = 0; i < 16; i++) {
+        idt_set_entry(32 + i, irq_stub_table[i], 0x8E);
+    }
+
     __asm__ volatile("lidt %0" : : "m"(idtr));
 }

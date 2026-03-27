@@ -9,6 +9,7 @@
 #include "kprintf.h"
 #include "gdt.h"
 #include "idt.h"
+#include "pic.h"
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -87,6 +88,9 @@ void kmain(void) {
         }
     }
 
+    pic_unmask(1);  // clavier
+    __asm__ volatile("sti");
+
     kprintf("DedOS v0.1\n");
     kprintf("Framebuffer: %u x %u\n", framebuffer->width, framebuffer->height);
     kprintf("Adresse kernel: %p\n", &kmain);
@@ -95,7 +99,6 @@ void kmain(void) {
     kprintf("Pointeur : %p\n", (void*)0x12345678);
     kprintf("Pourcentage : 50%%\n");
 
-    __asm__ volatile("ud2");
     // We're done, just hang...
     hcf();
 }

@@ -27,6 +27,15 @@ run: $(IMAGE_NAME).iso
 		-boot d \
 		$(QEMUFLAGS)
 
+.PHONY: run-noapic
+run-noapic: $(IMAGE_NAME).iso
+	qemu-system-x86_64 \
+		-M q35 \
+		-cdrom $(IMAGE_NAME).iso \
+		-boot d \
+		-cpu qemu64,-apic \
+		$(QEMUFLAGS)
+
 .PHONY: run-uefi
 run-uefi: edk2-ovmf $(IMAGE_NAME).iso
 	qemu-system-x86_64 \

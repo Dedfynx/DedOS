@@ -1,4 +1,5 @@
 global isr_stub_table
+global irq_stub_table
 extern isr_handler
 
 %macro isr_no_err_stub 1
@@ -15,6 +16,20 @@ isr_stub_%+%1:
 	push %1
 	jmp  isr_common
 %endmacro
+
+%macro irq_stub 1
+
+irq_stub_%+%1:
+	push 0
+	push %1
+	jmp  isr_common
+%endmacro
+
+%assign i 32
+%rep    16
+irq_stub i
+%assign i i+1
+%endrep
 
 isr_no_err_stub 0
 isr_no_err_stub 1
@@ -92,5 +107,12 @@ isr_stub_table:
 	%assign i 0
 	%rep    32
 	dq      isr_stub_%+i
+	%assign i i+1
+	%endrep
+
+irq_stub_table:
+	%assign i 32
+	%rep    16
+	dq      irq_stub_%+i
 	%assign i i+1
 	%endrep
