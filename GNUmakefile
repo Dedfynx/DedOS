@@ -108,7 +108,7 @@ clean:
 .PHONY: distclean
 distclean: clean
 	$(MAKE) -C kernel distclean
-	rm -rf limine edk2-ovmf
+	rm -rf limine edk2-ovmf .cache compile_commands.json
 
 .PHONY: compiledb
 compiledb: 

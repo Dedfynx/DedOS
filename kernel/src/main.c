@@ -1,7 +1,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+
 #include <limine.h>
+#include <flanterm.h>
+#include <flanterm_backends/fb.h>
+
+#include "kprintf.h"
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -32,6 +37,8 @@ static void hcf(void) {
     }
 }
 
+struct flanterm_context* ft_ctx;
+
 // The following will be our kernel's entry point.
 // If renaming kmain() to something else, make sure to change the
 // linker script accordingly.
@@ -49,6 +56,25 @@ void kmain(void) {
     // Fetch the first framebuffer.
     struct limine_framebuffer* framebuffer = framebuffer_request.response->framebuffers[0];
 
+    ft_ctx = flanterm_fb_init(
+        NULL,
+        NULL,
+        framebuffer->address,
+        framebuffer->width,
+        framebuffer->height,
+        framebuffer->pitch,
+        framebuffer->red_mask_size, framebuffer->red_mask_shift,
+        framebuffer->green_mask_size, framebuffer->green_mask_shift,
+        framebuffer->blue_mask_size, framebuffer->blue_mask_shift,
+        NULL,
+        NULL, NULL,
+        NULL, NULL,
+        NULL, NULL,
+        NULL, 0, 0, 1,
+        0, 0,
+        0,
+        0);
+
     size_t H = framebuffer->height;
     size_t W = framebuffer->width;
 
@@ -63,6 +89,14 @@ void kmain(void) {
             fb_ptr[i * (framebuffer->pitch / 4) + j] = (((red << 16) & 0xFF0000) | ((green << 8) & 0x00FF00) | (blue & 0x0000FF));
         }
     }
+
+    kprintf("DedOS v0.1\n");
+    kprintf("Framebuffer: %u x %u\n", framebuffer->width, framebuffer->height);
+    kprintf("Adresse kernel: %p\n", &kmain);
+    // Test
+    kprintf("Valeur : %d (hex: %x)\n", 255, 255);
+    kprintf("Pointeur : %p\n", (void*)0x12345678);
+    kprintf("Pourcentage : 50%%\n");
 
     // We're done, just hang...
     hcf();

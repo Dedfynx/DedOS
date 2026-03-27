@@ -45,6 +45,8 @@ NASMFLAGS := -g
 # User controllable linker flags. We set none by default.
 LDFLAGS :=
 
+FLANTERM_SRC := flanterm/src/flanterm.c flanterm/src/flanterm_backends/fb.c
+
 # Ensure the dependencies have been obtained.
 ifneq ($(filter-out clean distclean,$(MAKECMDGOALS)),)
     ifeq ($(wildcard .deps-obtained),)
@@ -82,7 +84,8 @@ override CFLAGS += \
     -mno-sse \
     -mno-sse2 \
     -mno-red-zone \
-    -mcmodel=kernel
+    -mcmodel=kernel \
+    -Iflanterm/src
 
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
@@ -114,7 +117,7 @@ override SRCFILES := $(shell find -L src cc-runtime/src -type f 2>/dev/null | LC
 override CFILES := $(filter %.c,$(SRCFILES))
 override ASFILES := $(filter %.S,$(SRCFILES))
 override NASMFILES := $(filter %.asm,$(SRCFILES))
-override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o) $(NASMFILES:.asm=.asm.o))
+override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o) $(NASMFILES:.asm=.asm.o) $(FLANTERM_SRC:.c=.c.o))
 override HEADER_DEPS := $(addprefix obj/,$(CFILES:.c=.c.d) $(ASFILES:.S=.S.d))
 
 # Default target. This must come first, before header dependencies.
@@ -152,7 +155,7 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean: clean
-	rm -rf .deps-obtained .cache compile_commands.json freestnd-c-hdrs cc-runtime limine-protocol
+	rm -rf .deps-obtained .cache compile_commands.json freestnd-c-hdrs cc-runtime limine-protocol flanterm
 
 # Install the final built executable to its final on-root location.
 .PHONY: install
