@@ -1,7 +1,8 @@
-#include <kprintf.h>
 #include <flanterm.h>
 #include <stdarg.h>
 #include <stdint.h>
+
+#include "kprintf.h"
 
 extern struct flanterm_context* ft_ctx;  // déclaré dans main.c
 
