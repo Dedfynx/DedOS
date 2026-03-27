@@ -11,6 +11,7 @@
 #include <idt.h>
 #include <pic.h>
 #include <keyboard.h>
+#include <pmm.h>
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -30,6 +31,14 @@ __attribute__((used, section(".limine_requests"))) static volatile struct limine
 __attribute__((used, section(".limine_requests_start"))) static volatile uint64_t limine_requests_start_marker[] = LIMINE_REQUESTS_START_MARKER;
 
 __attribute__((used, section(".limine_requests_end"))) static volatile uint64_t limine_requests_end_marker[] = LIMINE_REQUESTS_END_MARKER;
+
+__attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+    .id = LIMINE_MEMMAP_REQUEST_ID,
+    .revision = 0};
+
+__attribute__((used, section(".limine_requests"))) static volatile struct limine_hhdm_request hhdm_request = {
+    .id = LIMINE_HHDM_REQUEST_ID,
+    .revision = 0};
 
 // Halt and catch fire function.
 static void hcf(void) {
@@ -78,7 +87,7 @@ void kmain(void) {
 
     size_t H = framebuffer->height;
     size_t W = framebuffer->width;
-
+    // Background Test
     for (size_t i = 0; i < H; i++) {
         for (size_t j = 0; j < W; j++) {
             volatile uint32_t* fb_ptr = framebuffer->address;
@@ -89,6 +98,7 @@ void kmain(void) {
         }
     }
 
+    pmm_init(memmap_request.response, hhdm_request.response->offset);
     __asm__ volatile("sti");
 
     keyboard_init();
@@ -102,10 +112,13 @@ void kmain(void) {
     kprintf("Valeur : %d (hex: %x)\n", 255, 255);
     kprintf("Pointeur : %p\n", (void*)0x12345678);
     kprintf("Pourcentage : 50%%\n");
-
-    kprintf("Test clavier : ");
-    char c = keyboard_getchar();
-    kprintf("%c\n", c);
+    // Test
+    void* p1 = pmm_alloc();
+    void* p2 = pmm_alloc();
+    kprintf("p1: %p  p2: %p\n", p1, p2);
+    pmm_free(p1);
+    void* p3 = pmm_alloc();
+    kprintf("p3: %p (devrait etre egal a p1)\n", p3);
 
     // We're done, just hang...
     hcf();

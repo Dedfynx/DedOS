@@ -31,8 +31,10 @@ void isr_handler(interrupt_frame_t* frame) {
     } else {
         uint8_t irq = frame->vector - 32;
         if (irq == 1) {
-            uint8_t scancode = inb(0x60);
-            kprintf("key: %x\n", scancode);
+            /*
+        uint8_t scancode = inb(0x60);
+        kprintf("key: %x\n", scancode);
+        */
             keyboard_handler();
         }
         pic_sendEOI(irq);
