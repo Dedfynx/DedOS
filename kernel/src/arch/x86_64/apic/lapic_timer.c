@@ -4,7 +4,6 @@
 #include <kernel/log.h>
 #include <stdint.h>
 
-// Ports PIT
 #define PIT_CHANNEL0 0x40
 #define PIT_CMD 0x43
 #define PIT_FREQ 1193182
