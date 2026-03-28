@@ -1,8 +1,11 @@
-#include <isr.h>
-#include <pic.h>
-#include <io.h>
-#include <keyboard.h>
-#include <kprintf.h>
+#include <arch/x86_64/isr.h>
+#include <arch/x86_64/pic.h>
+#include <arch/x86_64/io.h>
+#include <arch/x86_64/apic/lapic.h>
+#include <drivers/keyboard.h>
+#include <kernel/log.h>
+
+volatile uint64_t timer_ticks = 0;
 
 static const char* exception_names[] = {
     "Division by zero",
@@ -24,19 +27,20 @@ static const char* exception_names[] = {
 
 void isr_handler(interrupt_frame_t* frame) {
     if (frame->vector < 32) {
-        kprintf("EXCEPTION: %s\n", exception_names[frame->vector]);
-        kprintf("  vector: %u  error: %x\n", frame->vector, frame->error_code);
-        kprintf("  rip: %p  rsp: %p\n", (void*)frame->rip, (void*)frame->rsp);
+        log_error("ISR", "EXCEPTION: %s | vector: %u error: %x | rip: %p rsp: %p",
+            exception_names[frame->vector],
+            frame->vector, frame->error_code,
+            (void*)frame->rip, (void*)frame->rsp);
+
         __asm__ volatile("cli; hlt");
     } else {
         uint8_t irq = frame->vector - 32;
-        if (irq == 1) {
-            /*
-        uint8_t scancode = inb(0x60);
-        kprintf("key: %x\n", scancode);
-        */
+        if (irq == 0) {
+            // timer tick
+            timer_ticks++;
+        } else if (irq == 1) {
             keyboard_handler();
         }
-        pic_sendEOI(irq);
+        lapic_eoi();  // pic_sendEOI(irq);
     }
 }

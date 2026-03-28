@@ -1,12 +1,13 @@
 #include <flanterm.h>
-#include <stdarg.h>
+#include <arch/x86_64/io.h>
 #include <stdint.h>
 
-#include "kprintf.h"
+#include <kernel/kprintf.h>
 
-extern struct flanterm_context* ft_ctx;  // déclaré dans main.c
+extern struct flanterm_context* ft_ctx;
 
 static void kputchar(char c) {
+    outb(0x3F8, c);
     if (c == '\n') {
         flanterm_write(ft_ctx, "\r\n", 2);
     } else {
@@ -33,10 +34,7 @@ static void kputuint(uint64_t n, uint8_t base) {
     while (i--) kputchar(buf[i]);
 }
 
-void kprintf(const char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-
+void kvprintf(const char* fmt, va_list args) {
     while (*fmt) {
         if (*fmt != '%') {
             kputchar(*fmt++);
@@ -74,6 +72,11 @@ void kprintf(const char* fmt, ...) {
                 break;
         }
     }
+}
 
+void kprintf(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    kvprintf(fmt, args);
     va_end(args);
 }

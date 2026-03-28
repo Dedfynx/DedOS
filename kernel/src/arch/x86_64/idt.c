@@ -1,6 +1,6 @@
-#include <idt.h>
-#include <isr.h>
-#include <pic.h>
+#include <arch/x86_64/idt.h>
+#include <arch/x86_64/isr.h>
+#include <arch/x86_64/pic.h>
 #include <stdint.h>
 
 #define IDT_SIZE 256

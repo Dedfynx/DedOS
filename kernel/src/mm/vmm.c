@@ -1,7 +1,7 @@
 // vmm.c
-#include <vmm.h>
-#include <pmm.h>
-#include <kprintf.h>
+#include "kernel/log.h"
+#include <mm/vmm.h>
+#include <mm/pmm.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -21,7 +21,7 @@ static pte_t* get_or_create(pte_t* table, uint64_t index, uint64_t flags) {
 
     void* phys = pmm_alloc();
     if (!phys) {
-        kprintf("VMM: pmm_alloc failed\n");
+        log_error("VMM", "pmm_alloc failed");
         return NULL;
     }
     pte_t* virt = phys_to_virt((uint64_t)phys);
@@ -86,13 +86,7 @@ pml4_t* vmm_get_current(void) {
 }
 
 void vmm_init(void) {
-    // Récupère le pagemap de Limine directement
     pml4_t* pml4 = vmm_get_current();
-    kprintf("VMM: pagemap Limine a %p\n", pml4);
-
-    // On garde le pagemap de Limine tel quel —
-    // il mappe déjà le kernel, le HHDM, et le framebuffer
-    // On switche juste pour prendre le contrôle
     vmm_switch(pml4);
-    kprintf("VMM: pagemap active\n");
+    log_info("VMM", "pagemap active");
 }

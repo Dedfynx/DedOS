@@ -1,5 +1,5 @@
-#include <pic.h>
-#include <io.h>
+#include <arch/x86_64/pic.h>
+#include <arch/x86_64/io.h>
 #include <stdint.h>
 
 void pic_init(void) {
@@ -61,4 +61,13 @@ void pic_unmask(uint8_t irq) {
     }
     value = inb(port) & ~(1 << irq);
     outb(port, value);
+}
+
+void pic_disable(void) {
+    // Masque toutes les IRQ sur les deux PICs
+    outb(PIC1_DATA, 0xFF);
+    outb(PIC2_DATA, 0xFF);
+
+    outb(0x22, 0x70);
+    outb(0x23, 0x01);
 }

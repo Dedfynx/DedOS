@@ -2,7 +2,7 @@
 .SUFFIXES:
 
 # Default user QEMU flags. These are appended to the QEMU command calls.
-QEMUFLAGS := -m 2G
+QEMUFLAGS := -m 2G -serial stdio -no-reboot -no-shutdown 
 
 override IMAGE_NAME := template
 
@@ -34,8 +34,6 @@ run-noapic: $(IMAGE_NAME).iso
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
 		-cpu qemu64,-apic \
-		-no-reboot \
-		-no-shutdown \
 		$(QEMUFLAGS)
 
 .PHONY: run-uefi

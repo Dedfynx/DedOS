@@ -90,10 +90,6 @@ override CFLAGS += \
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
     -I src \
-    -I src/arch/x86_64 \
-    -I src/kernel \
-    -I src/mm \
-    -I src/drivers \
     -I limine-protocol/include \
     -isystem freestnd-c-hdrs/include \
     $(CPPFLAGS) \

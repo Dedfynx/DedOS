@@ -6,13 +6,19 @@
 #include <flanterm.h>
 #include <flanterm_backends/fb.h>
 
-#include <kprintf.h>
-#include <gdt.h>
-#include <idt.h>
-#include <pic.h>
-#include <keyboard.h>
-#include <pmm.h>
-#include <vmm.h>
+#include <kernel/kprintf.h>
+#include <kernel/log.h>
+#include <arch/x86_64/gdt.h>
+#include <arch/x86_64/idt.h>
+#include <arch/x86_64/pic.h>
+#include <arch/x86_64/apic/lapic.h>
+#include <arch/x86_64/apic/ioapic.h>
+#include <arch/x86_64/apic/lapic_timer.h>
+#include <drivers/keyboard.h>
+#include <mm/pmm.h>
+#include <mm/vmm.h>
+#include <acpi/acpi.h>
+#include <acpi/madt.h>
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -39,6 +45,10 @@ __attribute__((used, section(".limine_requests"))) static volatile struct limine
 
 __attribute__((used, section(".limine_requests"))) static volatile struct limine_hhdm_request hhdm_request = {
     .id = LIMINE_HHDM_REQUEST_ID,
+    .revision = 0};
+
+__attribute__((used, section(".limine_requests"))) static volatile struct limine_rsdp_request rsdp_request = {
+    .id = LIMINE_RSDP_REQUEST_ID,
     .revision = 0};
 
 // Halt and catch fire function.
@@ -88,10 +98,11 @@ void kmain(void) {
 
     size_t H = framebuffer->height;
     size_t W = framebuffer->width;
+
     // Background Test
+    volatile uint32_t* fb_ptr = framebuffer->address;
     for (size_t i = 0; i < H; i++) {
         for (size_t j = 0; j < W; j++) {
-            volatile uint32_t* fb_ptr = framebuffer->address;
             uint8_t red = (j * 2) ^ (i * 2);
             uint8_t blue = i ^ j;
             uint8_t green = (j * 4) ^ (i * 4);
@@ -101,22 +112,41 @@ void kmain(void) {
 
     pmm_init(memmap_request.response, hhdm_request.response->offset);
     vmm_init();
+    if (rsdp_request.response == NULL) {
+        log_error("ACPI", "pas de RSDP !");
+        hcf();
+    }
+    acpi_init(rsdp_request.response->address);
+    acpi_sdt_header_t* madt = acpi_find_table("APIC");
+    if (madt)
+        log_debug("ACPI", "MADT trouve a %p", madt);
+    else
+        log_error("ACPI", "MADT non trouve");
+    madt_init();
+    lapic_init();
+    ioapic_init();
+    lapic_timer_init();
+    pic_disable();
+    ioapic_redirect(1, 33, 0);
+    ioapic_unmask(1);
+
+    ioapic_redirect(0, 32, 0);
+    ioapic_unmask(0);
+    keyboard_init();
+    log_info("KERNEL", "Clavier initialise");
+
     __asm__ volatile("sti");
 
-    keyboard_init();
-    pic_unmask(1);
-    kprintf("Clavier initialise\n");
-
-    kprintf("DedOS v0.1\n");
-    kprintf("Framebuffer: %u x %u\n", framebuffer->width, framebuffer->height);
-    kprintf("Adresse kernel: %p\n", &kmain);
+    log_info("KERNEL", "DedOS v0.1");
+    log_debug("TEST", "Framebuffer: %u x %u", framebuffer->width, framebuffer->height);
+    log_debug("TEST", "Adresse kernel: %p", &kmain);
     // Test
     void* p1 = pmm_alloc();
     void* p2 = pmm_alloc();
-    kprintf("PMM Alloc Test : p1: %p  p2: %p\n", p1, p2);
+    log_debug("TEST", "PMM Alloc Test : p1: %p  p2: %p", p1, p2);
     pmm_free(p1);
     void* p3 = pmm_alloc();
-    kprintf("PMM Alloc apres Free : p3: %p (devrait etre egal a p1)\n", p3);
+    log_debug("TEST", "PMM Alloc apres Free : p3: %p (devrait etre egal a p1)", p3);
 
     // We're done, just hang...
     hcf();

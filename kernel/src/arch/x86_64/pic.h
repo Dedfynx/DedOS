@@ -42,3 +42,4 @@ void pic_init(void);
 void pic_sendEOI(uint8_t irq);
 void pic_mask(uint8_t irq);
 void pic_unmask(uint8_t irq);
+void pic_disable(void);

@@ -1,4 +1,4 @@
-#include "gdt.h"
+#include <arch/x86_64/gdt.h>
 
 static gdt_entry_t gdt[3];
 static gdtr_t gdtr;
