@@ -1,4 +1,4 @@
-#include "kernel/log.h"
+#include <utils/log.h>
 #include <acpi/acpi.h>
 #include <stdint.h>
 #include <stddef.h>

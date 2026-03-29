@@ -1,7 +1,7 @@
 #include <arch/x86_64/apic/lapic_timer.h>
 #include <arch/x86_64/apic/lapic.h>
 #include <arch/x86_64/io.h>
-#include <kernel/log.h>
+#include <utils/log.h>
 #include <stdint.h>
 
 #define PIT_CHANNEL0 0x40

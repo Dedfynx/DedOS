@@ -6,8 +6,8 @@
 #include <flanterm.h>
 #include <flanterm_backends/fb.h>
 
-#include <kernel/kprintf.h>
-#include <kernel/log.h>
+#include <utils/kprintf.h>
+#include <utils/log.h>
 #include <arch/x86_64/gdt.h>
 #include <arch/x86_64/idt.h>
 #include <arch/x86_64/pic.h>

@@ -1,7 +1,7 @@
 #include <arch/x86_64/apic/ioapic.h>
 #include <acpi/madt.h>
 #include <mm/vmm.h>
-#include <kernel/log.h>
+#include <utils/log.h>
 #include <stdint.h>
 
 extern uint64_t hhdm_offset;

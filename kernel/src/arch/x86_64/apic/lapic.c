@@ -1,6 +1,6 @@
 #include <arch/x86_64/apic/lapic.h>
 #include <acpi/madt.h>
-#include <kernel/log.h>
+#include <utils/log.h>
 #include <mm/vmm.h>
 #include <stdint.h>
 

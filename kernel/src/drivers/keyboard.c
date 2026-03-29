@@ -1,6 +1,5 @@
 #include <drivers/keyboard.h>
 #include <arch/x86_64/io.h>
-#include <kernel/kprintf.h>
 
 #define KEYBOARD_DATA_PORT 0x60
 #define KEYBOARD_BUF_SIZE 256

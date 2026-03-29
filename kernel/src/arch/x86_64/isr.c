@@ -3,7 +3,7 @@
 #include <arch/x86_64/io.h>
 #include <arch/x86_64/apic/lapic.h>
 #include <drivers/keyboard.h>
-#include <kernel/log.h>
+#include <utils/log.h>
 
 volatile uint64_t timer_ticks = 0;
 

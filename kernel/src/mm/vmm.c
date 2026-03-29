@@ -1,5 +1,5 @@
 // vmm.c
-#include "kernel/log.h"
+#include <utils/log.h>
 #include <mm/vmm.h>
 #include <mm/pmm.h>
 #include <stdint.h>

@@ -2,7 +2,7 @@
 #include <arch/x86_64/io.h>
 #include <stdint.h>
 
-#include <kernel/kprintf.h>
+#include <utils/kprintf.h>
 
 extern struct flanterm_context* ft_ctx;
 

@@ -1,15 +1,8 @@
-#include <kernel/log.h>
-#include <kernel/kprintf.h>
+#include <utils/log.h>
+#include <utils/kprintf.h>
 #include <stdarg.h>
 #include <stdint.h>
-
-// ANSI colors
-#define ANSI_RESET "\033[0m"
-#define ANSI_GRAY "\033[90m"
-#define ANSI_CYAN "\033[36m"
-#define ANSI_YELLOW "\033[33m"
-#define ANSI_RED "\033[31m"
-#define ANSI_BOLD "\033[1m"
+#include <utils/colours.h>
 
 extern volatile uint64_t timer_ticks;
 
@@ -21,10 +14,10 @@ static const char* level_str[] = {
 };
 
 static const char* level_color[] = {
-    ANSI_GRAY,
-    ANSI_CYAN,
-    ANSI_YELLOW,
-    ANSI_RED,
+    ANSI_BRIGHT_GREEN,
+    ANSI_BRIGHT_CYAN,
+    ANSI_BRIGHT_YELLOW,
+    ANSI_BRIGHT_RED,
 };
 
 static void print_timestamp(void) {
@@ -32,7 +25,7 @@ static void print_timestamp(void) {
     uint64_t secs = ticks / 1000;
     uint64_t ms = ticks % 1000;
 
-    kprintf(ANSI_GRAY "[");
+    kprintf(ANSI_BRIGHT_BLACK "[");
     kprintf("%u", (uint64_t)secs);
     kprintf(".");
     if (ms < 100) kprintf("0");
@@ -45,7 +38,7 @@ void log_msg(log_level_t level, const char* subsystem, const char* fmt, ...) {
 
     print_timestamp();
 
-    kprintf("%s%s%s ", level_color[level], level_str[level], ANSI_RESET);
+    kprintf("%s[%s]%s ", level_color[level], level_str[level], ANSI_RESET);
 
     kprintf(ANSI_BOLD "%s" ANSI_RESET ": ", subsystem);
 
