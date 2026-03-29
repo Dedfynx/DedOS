@@ -17,8 +17,10 @@
 #include <drivers/keyboard.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
+#include <mm/heap.h>
 #include <acpi/acpi.h>
 #include <acpi/madt.h>
+#include <libc/string.h>
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -61,9 +63,6 @@ static void hcf(void) {
 struct flanterm_context* ft_ctx;
 
 void kmain(void) {
-    gdt_init();
-    idt_init();
-
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED(limine_base_revision) == false) {
         hcf();
@@ -96,10 +95,9 @@ void kmain(void) {
         0,
         0);
 
+    // Background Test
     size_t H = framebuffer->height;
     size_t W = framebuffer->width;
-
-    // Background Test
     volatile uint32_t* fb_ptr = framebuffer->address;
     for (size_t i = 0; i < H; i++) {
         for (size_t j = 0; j < W; j++) {
@@ -109,13 +107,15 @@ void kmain(void) {
             fb_ptr[i * (framebuffer->pitch / 4) + j] = (((red << 16) & 0xFF0000) | ((green << 8) & 0x00FF00) | (blue & 0x0000FF));
         }
     }
-
+    gdt_init();
+    idt_init();
     pmm_init(memmap_request.response, hhdm_request.response->offset);
     vmm_init();
     if (rsdp_request.response == NULL) {
         log_error("ACPI", "pas de RSDP !");
         hcf();
     }
+    heap_init();
     acpi_init(rsdp_request.response->address);
     acpi_sdt_header_t* madt = acpi_find_table("APIC");
     if (madt)
@@ -140,13 +140,6 @@ void kmain(void) {
     log_info("KERNEL", "DedOS v0.1");
     log_debug("TEST", "Framebuffer: %u x %u", framebuffer->width, framebuffer->height);
     log_debug("TEST", "Adresse kernel: %p", &kmain);
-    // Test
-    void* p1 = pmm_alloc();
-    void* p2 = pmm_alloc();
-    log_debug("TEST", "PMM Alloc Test : p1: %p  p2: %p", p1, p2);
-    pmm_free(p1);
-    void* p3 = pmm_alloc();
-    log_debug("TEST", "PMM Alloc apres Free : p3: %p (devrait etre egal a p1)", p3);
 
     // We're done, just hang...
     hcf();
