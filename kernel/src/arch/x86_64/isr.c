@@ -4,6 +4,7 @@
 #include <arch/x86_64/apic/lapic.h>
 #include <drivers/keyboard.h>
 #include <utils/log.h>
+#include <scheduler/scheduler.h>
 
 volatile uint64_t timer_ticks = 0;
 
@@ -38,6 +39,8 @@ void isr_handler(interrupt_frame_t* frame) {
         if (irq == 0) {
             // timer tick
             timer_ticks++;
+            if (scheduler_current())
+                scheduler_tick_irq(frame);
         } else if (irq == 1) {
             keyboard_handler();
         }

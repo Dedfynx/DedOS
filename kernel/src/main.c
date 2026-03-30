@@ -21,6 +21,9 @@
 #include <acpi/acpi.h>
 #include <acpi/madt.h>
 #include <libc/string.h>
+#include <scheduler/scheduler.h>
+#include <scheduler/process.h>
+#include <scheduler/thread.h>
 
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -57,6 +60,25 @@ __attribute__((used, section(".limine_requests"))) static volatile struct limine
 static void hcf(void) {
     for (;;) {
         asm("hlt");
+    }
+}
+
+//
+void task_a(void) {
+    int i = 0;
+    while (i < 10) {
+        log_info("TASK_A", "Iter : %d", i);
+        i++;
+        thread_sleep(500);
+    }
+}
+
+void task_b(void) {
+    int i = 0;
+    while (i < 5) {
+        log_info("TASK_B", "Iter : %d", i);
+        i++;
+        thread_sleep(1000);
     }
 }
 
@@ -141,6 +163,27 @@ void kmain(void) {
     log_debug("TEST", "Framebuffer: %u x %u", framebuffer->width, framebuffer->height);
     log_debug("TEST", "Adresse kernel: %p", &kmain);
 
+    // Test kmalloc
+    void* a = kmalloc(64);
+    void* b = kmalloc(128);
+    log_debug("TEST", "kmalloc a=%p b=%p", a, b);
+    kfree(a);
+    void* c = kmalloc(64);
+    log_debug("TEST", "kmalloc apres free c=%p (devrait etre egal a a)", c);
+    kfree(b);
+    kfree(c);
+
+    scheduler_init();
+    scheduler_lock();
+    process_t* proc_a = process_create("TASK_A");
+    thread_t* th_a = thread_create(proc_a, task_a);
+    scheduler_add_thread(th_a);
+
+    process_t* proc_b = process_create("TASK_B");
+    thread_t* th_b = thread_create(proc_b, task_b);
+    scheduler_add_thread(th_b);
+
+    scheduler_unlock();
     // We're done, just hang...
     hcf();
 }

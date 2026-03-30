@@ -62,6 +62,12 @@ void heap_init(void) {
 void* kmalloc(size_t size) {
     if (size == 0) return NULL;
 
+    // TODO : Faire une vrai gestion des grandes allocations
+    if (size > SLAB_1024) {
+        void* page = pmm_alloc();
+        return (void*)((uint64_t)page + hhdm_offset);
+    }
+
     struct slab_cache* cache = NULL;
     for (int i = 0; i < 6; i++) {
         if (size <= caches[i].obj_size) {

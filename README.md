@@ -13,7 +13,7 @@ Little OS Project
 - [x] LAPIC + IOAPIC
 - [x] Timer
 - [x] Driver Clavier PS/2
-- [ ] Scheduler
+- [x] Scheduler
 - [ ] SMP
 - [ ] VFS
 - [ ] tmpfs
