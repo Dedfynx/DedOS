@@ -8,7 +8,7 @@
 extern uint64_t hhdm_offset;
 
 void pmm_init(struct limine_memmap_response* memmap, uint64_t hhdm);
-void* pmm_alloc(void);
-void pmm_free(void* ptr);
+uintptr_t pmm_alloc(void);
+void pmm_free(uintptr_t ptr);
 size_t pmm_free_pages(void);
 size_t pmm_total_pages(void);

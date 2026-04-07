@@ -1,10 +1,22 @@
 #include <mm/heap.h>
 #include <mm/pmm.h>
+#include <mm/vmm.h>
+#include <stdint.h>
 #include <utils/log.h>
 #include <libc/string.h>
 
 extern uint64_t hhdm_offset;
 
+#define MAGIC_SLAB 0x800051AB
+#define MAGIC_PAGE 0x80007A63
+
+struct alloc_header {
+    uint32_t magic;
+    size_t pages;
+    size_t size;
+};
+
+static uintptr_t kernel_heap_vaddr = 0xFFFFFFFF90000000;
 struct slab_object {
     struct slab_object* next;
 };
@@ -23,7 +35,7 @@ struct slab_cache {
 static struct slab_cache caches[6];
 
 static struct slab_header* create_slab(size_t obj_size) {
-    void* phys = pmm_alloc();
+    uintptr_t phys = pmm_alloc();
     if (!phys) return NULL;
 
     struct slab_header* slab = (struct slab_header*)((uint64_t)phys + hhdm_offset);
@@ -62,37 +74,57 @@ void heap_init(void) {
 void* kmalloc(size_t size) {
     if (size == 0) return NULL;
 
-    // TODO : Faire une vrai gestion des grandes allocations
+    size_t total_needed = size + sizeof(struct alloc_header);
+
     if (size > SLAB_1024) {
-        void* page = pmm_alloc();
-        return (void*)((uint64_t)page + hhdm_offset);
+        size_t pages_count = (total_needed + 4095) / 4096;
+
+        void* virt_start = (void*)kernel_heap_vaddr;
+        kernel_heap_vaddr += (pages_count * 4096);
+
+        pml4_t* pml4 = vmm_get_current();
+
+        for (size_t i = 0; i < pages_count; i++) {
+            uintptr_t phys = pmm_alloc();
+            if (!phys) return NULL;
+            vmm_map(pml4, (uintptr_t)virt_start + (i * 4096), phys, VMM_PRESENT | VMM_WRITE);
+        }
+
+        struct alloc_header* header = (struct alloc_header*)virt_start;
+        header->magic = MAGIC_PAGE;
+        header->pages = pages_count;
+        header->size = size;
+
+        return (void*)((uintptr_t)virt_start + sizeof(struct alloc_header));
     }
 
     struct slab_cache* cache = NULL;
     for (int i = 0; i < 6; i++) {
-        if (size <= caches[i].obj_size) {
+        if (total_needed <= caches[i].obj_size) {
             cache = &caches[i];
             break;
         }
     }
 
-    if (!cache) {
-        log_error("HEAP", "Allocation trop large (%d bytes) non supportee", size);
-        return NULL;
-    }
+    if (!cache) return NULL;
 
     struct slab_header* slab = cache->first_slab;
+    struct alloc_header* header = NULL;
+
     while (slab) {
         if (slab->free_list) {
-            struct slab_object* obj = slab->free_list;
-            slab->free_list = obj->next;
-            return (void*)obj;
+            header = (struct alloc_header*)slab->free_list;
+            slab->free_list = slab->free_list->next;
+            break;
         }
-
-        if (!slab->next_slab) {
-            slab->next_slab = create_slab(cache->obj_size);
-        }
+        if (!slab->next_slab) slab->next_slab = create_slab(cache->obj_size);
         slab = slab->next_slab;
+    }
+
+    if (header) {
+        header->magic = MAGIC_SLAB;
+        header->size = size;
+        return (void*)((uintptr_t)header + sizeof(struct alloc_header));
     }
 
     return NULL;
@@ -101,11 +133,30 @@ void* kmalloc(size_t size) {
 void kfree(void* ptr) {
     if (!ptr) return;
 
-    struct slab_header* slab = (struct slab_header*)((uint64_t)ptr & ~0xFFFULL);
+    struct alloc_header* header = (struct alloc_header*)((uintptr_t)ptr - sizeof(struct alloc_header));
 
-    struct slab_object* obj = (struct slab_object*)ptr;
-    obj->next = slab->free_list;
-    slab->free_list = obj;
+    if (header->magic == MAGIC_SLAB) {
+        struct slab_header* slab = (struct slab_header*)((uintptr_t)header & ~0xFFFULL);
+
+        struct slab_object* obj = (struct slab_object*)header;
+        obj->next = slab->free_list;
+        slab->free_list = obj;
+    } else if (header->magic == MAGIC_PAGE) {
+        size_t pages_to_free = header->pages;
+        uintptr_t virt_base = (uintptr_t)header;
+        pml4_t* pml4 = vmm_get_current();
+
+        for (size_t i = 0; i < pages_to_free; i++) {
+            uintptr_t v_addr = virt_base + (i * 4096);
+
+            uintptr_t phys = vmm_get_phys(pml4, v_addr);
+
+            vmm_unmap(pml4, v_addr);
+            if (phys) pmm_free(phys);
+        }
+    } else {
+        log_error("KFREE", "Corruption détectée ! Magic invalide à %p", ptr);
+    }
 }
 
 void* kcalloc(size_t count, size_t size) {

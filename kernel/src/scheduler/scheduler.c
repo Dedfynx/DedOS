@@ -42,7 +42,7 @@ void scheduler_init(void) {
     idle_thread.context.r15 = 0;
 
     current = &idle_thread;
-    log_info("SCHED", "Scheduler initialise");
+    log_info("SCHED", "Scheduler initialisé");
 }
 
 void scheduler_lock(void) { locked = 1; }

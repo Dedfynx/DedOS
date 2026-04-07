@@ -69,7 +69,7 @@ void madt_init(void) {
                 break;
             }
             default:
-                log_warn("MADT", "Entree type %u ignoree", entry->type);
+                log_warn("MADT", "Entrée type %u ignoree", entry->type);
                 break;
         }
 

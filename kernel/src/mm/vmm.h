@@ -3,7 +3,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// Flags des entrées de page table
 #define VMM_PRESENT (1ULL << 0)
 #define VMM_WRITE (1ULL << 1)
 #define VMM_USER (1ULL << 2)
@@ -27,3 +26,4 @@ void vmm_unmap(pml4_t* pml4, uint64_t virt);
 pml4_t* vmm_new_pagemap(void);
 void vmm_switch(pml4_t* pml4);
 pml4_t* vmm_get_current(void);
+uintptr_t vmm_get_phys(pml4_t* pml4, uint64_t virt);

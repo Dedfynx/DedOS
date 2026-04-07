@@ -74,19 +74,19 @@ void pmm_init(struct limine_memmap_response* memmap, uint64_t hhdm) {
         (free_pages * PAGE_SIZE) / (1024 * 1024));
 }
 
-void* pmm_alloc(void) {
+uintptr_t pmm_alloc(void) {
     for (size_t i = 0; i < total_pages; i++) {
         if (!BITMAP_TEST(i)) {
             BITMAP_SET(i);
             free_pages--;
-            return (void*)(uint64_t)(i * PAGE_SIZE);
+            return (uintptr_t)(uint64_t)(i * PAGE_SIZE);
         }
     }
     log_error("PMM", "plus de memoire physique !");
-    return NULL;
+    return 0;
 }
 
-void pmm_free(void* ptr) {
+void pmm_free(uintptr_t ptr) {
     uint64_t page = (uint64_t)ptr / PAGE_SIZE;
     if (BITMAP_TEST(page)) {
         BITMAP_CLEAR(page);

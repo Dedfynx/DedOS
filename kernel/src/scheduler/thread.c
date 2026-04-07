@@ -58,7 +58,7 @@ void thread_exit(void) {
     __asm__ volatile("cli");
     thread_t* t = scheduler_current();
     t->state = THREAD_DEAD;
-    log_debug("THREAD", "Thread %u termine", t->id);
+    log_debug("THREAD", "Thread %u terminé", t->id);
     __asm__ volatile("sti");
     scheduler_yield();
     while (1) __asm__ volatile("hlt");

@@ -141,9 +141,9 @@ void kmain(void) {
     acpi_init(rsdp_request.response->address);
     acpi_sdt_header_t* madt = acpi_find_table("APIC");
     if (madt)
-        log_debug("ACPI", "MADT trouve a %p", madt);
+        log_debug("ACPI", "MADT trouvé à %p", madt);
     else
-        log_error("ACPI", "MADT non trouve");
+        log_error("ACPI", "MADT non trouvé");
     madt_init();
     lapic_init();
     ioapic_init();
@@ -155,7 +155,7 @@ void kmain(void) {
     ioapic_redirect(0, 32, 0);
     ioapic_unmask(0);
     keyboard_init();
-    log_info("KERNEL", "Clavier initialise");
+    log_info("KERNEL", "Clavier initialisé");
 
     __asm__ volatile("sti");
 
@@ -166,10 +166,10 @@ void kmain(void) {
     // Test kmalloc
     void* a = kmalloc(64);
     void* b = kmalloc(128);
-    log_debug("TEST", "kmalloc a=%p b=%p", a, b);
+    log_debug("TEST", "KMalloc a=%p b=%p", a, b);
     kfree(a);
     void* c = kmalloc(64);
-    log_debug("TEST", "kmalloc apres free c=%p (devrait etre egal a a)", c);
+    log_debug("TEST", "KMalloc after free c=%p", c);
     kfree(b);
     kfree(c);
 

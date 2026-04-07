@@ -24,8 +24,6 @@ Little OS Project
 ## Dependencies
 
 - [Limine Template](https://codeberg.org/Limine/limine-c-template-x86-64/) - Template de base pour démarrer
-- [freestnd-c-hdrs](https://codeberg.org/OSDev/freestnd-c-hdrs-0bsd) - Headers C freestanding
-- [cc-runtime](https://codeberg.org/OSDev/cc-runtime) - Runtime C minimal
 - [Flanterm](https://codeberg.org/Mintsuki/Flanterm) - Terminal emulator
 
 ## Ressources

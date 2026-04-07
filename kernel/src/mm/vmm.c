@@ -19,7 +19,7 @@ static pte_t* get_or_create(pte_t* table, uint64_t index, uint64_t flags) {
     if (table[index] & VMM_PRESENT)
         return phys_to_virt(table[index] & ~0xFFFULL);
 
-    void* phys = pmm_alloc();
+    uintptr_t phys = pmm_alloc();
     if (!phys) {
         log_error("VMM", "pmm_alloc failed");
         return NULL;
@@ -89,4 +89,22 @@ void vmm_init(void) {
     pml4_t* pml4 = vmm_get_current();
     vmm_switch(pml4);
     log_info("VMM", "pagemap active");
+}
+
+uintptr_t vmm_get_phys(pml4_t* pml4, uint64_t virt) {
+    uint64_t pml4_idx = (virt >> 39) & 0x1FF;
+    uint64_t pdpt_idx = (virt >> 30) & 0x1FF;
+    uint64_t pd_idx = (virt >> 21) & 0x1FF;
+    uint64_t pt_idx = (virt >> 12) & 0x1FF;
+
+    if (!(pml4->entries[pml4_idx] & VMM_PRESENT)) return 0;
+    pte_t* pdpt = phys_to_virt(pml4->entries[pml4_idx] & ~0xFFFULL);
+
+    if (!(pdpt[pdpt_idx] & VMM_PRESENT)) return 0;
+    pte_t* pd = phys_to_virt(pdpt[pdpt_idx] & ~0xFFFULL);
+
+    if (!(pd[pd_idx] & VMM_PRESENT)) return 0;
+    pte_t* pt = phys_to_virt(pd[pd_idx] & ~0xFFFULL);
+
+    return pt[pt_idx] & ~0xFFFULL;
 }
