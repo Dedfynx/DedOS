@@ -16,7 +16,7 @@ struct alloc_header {
     size_t size;
 };
 
-static uintptr_t kernel_heap_vaddr = 0xFFFFFFFF90000000;
+static uintptr_t kernel_heap_vaddr = 0xffffffff90000000;
 struct slab_object {
     struct slab_object* next;
 };

@@ -4,3 +4,6 @@
 *.hdd
 compile_commands.json
 .cache/
+
+#Obsidian Vault
+/DedOS Doc
