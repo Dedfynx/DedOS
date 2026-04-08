@@ -15,15 +15,14 @@ typedef struct vfs_node {
     char name[128];
     uint32_t flags;
     uint64_t size;
-    uint32_t inode;  // Identifiant unique pour le driver
+    uint32_t inode;
 
-    void* device;  // Pointeur vers des données spécifiques au driver (ex: structure tmpfs)
+    void* device;
 
     vfs_read_t read;
     vfs_write_t write;
-    vfs_finddir_t finddir;  // Pour les dossiers : trouver un enfant par son nom
-
-    struct vfs_node* ptr;  // Utilisé pour les points de montage (mount points)
+    vfs_finddir_t finddir;
+    struct vfs_node* ptr;
 } vfs_node_t;
 
 vfs_node_t* vfs_find_path(const char* path);
