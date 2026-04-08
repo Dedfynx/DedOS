@@ -1,5 +1,6 @@
 #include <fs/vfs.h>
 #include <utils/log.h>
+#include <mm/heap.h>
 
 vfs_node_t* vfs_root = NULL;
 
@@ -25,7 +26,7 @@ vfs_node_t* vfs_find_path(const char* path) {
 
         while (path[cursor] != '/' && path[cursor] != '\0') {
             if (i < 127) {
-                name[i++] = path[i];
+                name[i++] = path[cursor];
             }
             cursor++;
         }
@@ -45,8 +46,13 @@ vfs_node_t* vfs_find_path(const char* path) {
 
         vfs_node_t* next = current_node->finddir(current_node, name);
         if (!next) {
+            if (current_node != vfs_root) vfs_close(current_node);
             log_debug("VFS", "Composant non trouve: %s", name);
             return NULL;
+        }
+
+        if (current_node != vfs_root) {
+            vfs_close(current_node);
         }
 
         current_node = next;
@@ -56,4 +62,10 @@ vfs_node_t* vfs_find_path(const char* path) {
         }
     }
     return current_node;
+}
+
+void vfs_close(vfs_node_t* node) {
+    if (!node) return;
+    if (node == vfs_root) return;
+    kfree(node);
 }

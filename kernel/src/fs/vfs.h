@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -26,3 +28,7 @@ typedef struct vfs_node {
 } vfs_node_t;
 
 vfs_node_t* vfs_find_path(const char* path);
+void vfs_close(vfs_node_t* node);
+uint64_t vfs_read(vfs_node_t* node, uint64_t offset, uint64_t size, void* buffer);
+
+extern vfs_node_t* vfs_root;

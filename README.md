@@ -15,8 +15,8 @@ Little OS Project
 - [x] Driver Clavier PS/2
 - [x] Scheduler
 - [ ] SMP
-- [ ] VFS
-- [ ] tmpfs
+- [x] VFS
+- [x] tmpfs
 - [ ] Userland + Syscalls
 - [ ] PCI
 - [ ] Stockage (AHCI/NVMe)
