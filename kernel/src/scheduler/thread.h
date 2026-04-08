@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include <stddef.h>
 #include <arch/x86_64/regs.h>
 
 #define THREAD_STACK_SIZE 4096  // 64KB

@@ -34,3 +34,4 @@ typedef struct gdtr_t {
 extern void gdt_load(gdtr_t* gdtr);
 
 void gdt_init(void);
+void gdt_update_tss_rsp(uint64_t rsp);

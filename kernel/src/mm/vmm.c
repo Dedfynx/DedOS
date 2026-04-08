@@ -1,4 +1,3 @@
-// vmm.c
 #include <utils/log.h>
 #include <mm/vmm.h>
 #include <mm/pmm.h>
@@ -69,8 +68,15 @@ void vmm_unmap(pml4_t* pml4, uint64_t virt) {
 
 pml4_t* vmm_new_pagemap(void) {
     pml4_t* pml4 = phys_to_virt((uint64_t)pmm_alloc());
-    for (int i = 0; i < 512; i++)
-        pml4->entries[i] = 0;
+    pml4_t* current_pml4 = vmm_get_current();
+
+    for (int i = 0; i < 512; i++) {
+        if (i >= 256) {
+            pml4->entries[i] = current_pml4->entries[i];
+        } else {
+            pml4->entries[i] = 0;
+        }
+    }
     return pml4;
 }
 

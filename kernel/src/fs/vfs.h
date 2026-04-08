@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stddef.h>
 
 #define VFS_FILE (1 << 0)
 #define VFS_DIRECTORY (1 << 1)

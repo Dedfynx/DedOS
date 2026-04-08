@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stddef.h>
-#include <stdint.h>
 
 #define SLAB_32 32
 #define SLAB_64 64
