@@ -4,6 +4,8 @@
 *.hdd
 compile_commands.json
 .cache/
+initroot/
+initrd.tar
 
 #Obsidian Vault
 /DedOS Doc

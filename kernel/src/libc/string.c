@@ -1,6 +1,6 @@
-#include <stdint.h>
-#include <stddef.h>
 #include <libc/string.h>
+
+#include <stdint.h>
 
 // GCC and Clang reserve the right to generate calls to the following
 // 4 functions even if they are not directly called.
@@ -78,4 +78,21 @@ char* strcpy(char* dest, const char* src) {
     while ((*dest++ = *src++) != '\0')
         /* nothing */;
     return tmp;
+}
+
+char* strrchr(const char* s, int c) {
+    const char* last = NULL;
+    do {
+        if (*s == (char)c)
+            last = s;
+    } while (*s++);
+    return (char*)last;
+}
+
+size_t strlen(const char* s) {
+    const char* sc;
+
+    for (sc = s; *sc != '\0'; ++sc)
+        /* nothing */;
+    return sc - s;
 }

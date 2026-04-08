@@ -103,3 +103,35 @@ struct tmpfs_node* tmpfs_create_dir(struct tmpfs_node* parent, const char* name)
 struct tmpfs_node* tmpfs_get_root_internal() {
     return root_internal;
 }
+
+struct tmpfs_node* tmpfs_add_entry(const char* full_path, void* data, size_t size, uint32_t flags) {
+    struct tmpfs_node* current_parent = root_internal;
+    char path_copy[256];
+    strcpy(path_copy, full_path);
+
+    char* filename = path_copy;
+    char* last_slash = strrchr(path_copy, '/');
+
+    if (last_slash) {
+        *last_slash = '\0';  // On coupe la chaîne : path_copy = "bin", filename_ptr = "sh"
+        filename = last_slash + 1;
+
+        // On cherche le dossier parent via le VFS
+        vfs_node_t* parent_vnode = vfs_find_path(path_copy);
+        if (parent_vnode && (parent_vnode->flags & VFS_DIRECTORY)) {
+            current_parent = (struct tmpfs_node*)parent_vnode->device;
+            // On ne ferme pas le vnode ici si on veut être rapide,
+            // mais idéalement il faudrait vfs_close(parent_vnode) après avoir fini.
+        } else {
+            // Si le dossier n'existe pas, on pourrait le créer récursivement ici
+            // Pour l'instant, on se contente de logguer une erreur ou de créer à la racine
+            log_error("TMPFS", "Parent non trouve pour %s, creation a la racine", full_path);
+        }
+    }
+
+    if (flags & VFS_DIRECTORY) {
+        return tmpfs_create_dir(current_parent, filename);
+    } else {
+        return tmpfs_create_file(current_parent, filename, data, size);
+    }
+}

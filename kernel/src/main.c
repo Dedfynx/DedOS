@@ -1,3 +1,4 @@
+#include "fs/initrd.h"
 #include "fs/tmpfs.h"
 #include <stdint.h>
 #include <stddef.h>
@@ -176,23 +177,14 @@ void kmain(void) {
     kfree(b);
     kfree(c);
 
-    //
     tmpfs_init();
+    initrd_init();
 
     // test filesystem
-    struct tmpfs_node* root_internal = tmpfs_get_root_internal();
-    tmpfs_create_dir(root_internal, "home");
 
-    vfs_node_t* home_vnode = vfs_find_path("/home");
-    if (home_vnode) {
-        struct tmpfs_node* home_internal = (struct tmpfs_node*)home_vnode->device;
-        tmpfs_create_file(home_internal, "test.txt", "Hello World", 13);
-        vfs_close(home_vnode);
-    }
-
-    vfs_node_t* FILE = vfs_find_path("/home/test.txt");
+    vfs_node_t* FILE = vfs_find_path("/etc/test.txt");
     if (FILE) {
-        log_info("VFS", "Fichier /home/test.txt trouvé");
+        log_info("VFS", "Fichier /etc/test.txt trouvé");
         char test_buf[16];
         vfs_read(FILE, 0, 13, test_buf);
         log_debug("VFS", "Contenu : %s", test_buf);
@@ -200,7 +192,6 @@ void kmain(void) {
     } else {
         log_error("VFS", "Echec du find_path");
     }
-    //
 
     scheduler_init();
     scheduler_lock();
