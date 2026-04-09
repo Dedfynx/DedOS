@@ -32,16 +32,21 @@ static pte_t* get_or_create(pte_t* table, uint64_t index, uint64_t flags) {
 }
 
 void vmm_map(pml4_t* pml4, uint64_t virt, uint64_t phys, uint64_t flags) {
+    uint64_t table_flags = VMM_PRESENT | VMM_WRITE;
+    if (flags & VMM_USER) {
+        table_flags |= VMM_USER;
+    }
+
     uint64_t pml4_idx = (virt >> 39) & 0x1FF;
     uint64_t pdpt_idx = (virt >> 30) & 0x1FF;
     uint64_t pd_idx = (virt >> 21) & 0x1FF;
     uint64_t pt_idx = (virt >> 12) & 0x1FF;
 
-    pte_t* pdpt = get_or_create(pml4->entries, pml4_idx, VMM_PRESENT | VMM_WRITE);
+    pte_t* pdpt = get_or_create(pml4->entries, pml4_idx, table_flags);
     if (!pdpt) return;
-    pte_t* pd = get_or_create(pdpt, pdpt_idx, VMM_PRESENT | VMM_WRITE);
+    pte_t* pd = get_or_create(pdpt, pdpt_idx, table_flags);
     if (!pd) return;
-    pte_t* pt = get_or_create(pd, pd_idx, VMM_PRESENT | VMM_WRITE);
+    pte_t* pt = get_or_create(pd, pd_idx, table_flags);
     if (!pt) return;
 
     pt[pt_idx] = phys | flags;

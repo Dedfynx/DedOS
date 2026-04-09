@@ -2,7 +2,9 @@
 #include <scheduler/thread.h>
 #include <scheduler/process.h>
 #include <mm/heap.h>
+#include <mm/vmm.h>
 #include <utils/log.h>
+#include <arch/x86_64/gdt.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -154,40 +156,39 @@ void scheduler_tick_irq(interrupt_frame_t* frame) {
         current->context.r14 = frame->r14;
         current->context.r15 = frame->r15;
     }
-
     /*
-    if (current->process && current->process->pagemap) {
-        vmm_switch(current->process->pagemap);
-    }
-
-    if (current->context.cs == 0x1B) {  // Si c'est un thread User
-        gdt_update_tss_rsp(current->kernel_stack_top);
-    }
-    */
+        if (current->process && current->process->pagemap) {
+            vmm_switch(current->process->pagemap);
+        }
+        */
 
     next->state = THREAD_RUNNING;
     next->quantum = SCHEDULER_QUANTUM;
     current = next;
 
-    frame->rip = next->context.rip;
-    frame->rsp = next->context.rsp;
-    frame->rbp = next->context.rbp;
-    frame->rax = next->context.rax;
-    frame->rbx = next->context.rbx;
-    frame->rcx = next->context.rcx;
-    frame->rdx = next->context.rdx;
-    frame->rsi = next->context.rsi;
-    frame->rdi = next->context.rdi;
-    frame->ss = next->context.ss;
-    frame->cs = next->context.cs;
-    frame->rflags = next->context.rflags;
+    if (current->context.cs == 0x1B) {  // Si c'est un thread User
+        gdt_update_tss_rsp(current->kernel_stack_top);
+    }
 
-    frame->r8 = next->context.r8;
-    frame->r9 = next->context.r9;
-    frame->r10 = next->context.r10;
-    frame->r11 = next->context.r11;
-    frame->r12 = next->context.r12;
-    frame->r13 = next->context.r13;
-    frame->r14 = next->context.r14;
-    frame->r15 = next->context.r15;
+    frame->rip = current->context.rip;
+    frame->rsp = current->context.rsp;
+    frame->rbp = current->context.rbp;
+    frame->rax = current->context.rax;
+    frame->rbx = current->context.rbx;
+    frame->rcx = current->context.rcx;
+    frame->rdx = current->context.rdx;
+    frame->rsi = current->context.rsi;
+    frame->rdi = current->context.rdi;
+    frame->ss = current->context.ss;
+    frame->cs = current->context.cs;
+    frame->rflags = current->context.rflags;
+
+    frame->r8 = current->context.r8;
+    frame->r9 = current->context.r9;
+    frame->r10 = current->context.r10;
+    frame->r11 = current->context.r11;
+    frame->r12 = current->context.r12;
+    frame->r13 = current->context.r13;
+    frame->r14 = current->context.r14;
+    frame->r15 = current->context.r15;
 }

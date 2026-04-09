@@ -194,6 +194,7 @@ void kmain(void) {
     }
 
     scheduler_init();
+
     scheduler_lock();
     process_t* proc_a = process_create("TASK_A");
     thread_t* th_a = thread_create(proc_a, task_a);
@@ -204,6 +205,7 @@ void kmain(void) {
     scheduler_add_thread(th_b);
 
     scheduler_unlock();
+
     // We're done, just hang...
     hcf();
 }
