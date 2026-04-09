@@ -4,6 +4,7 @@
 #include <mm/heap.h>
 #include <utils/log.h>
 #include <stdint.h>
+#include <libc/string.h>
 
 extern volatile uint64_t timer_ticks;
 static uint64_t next_tid = 0;
@@ -14,6 +15,7 @@ thread_t* thread_create(process_t* proc, void (*entry)(void)) {
         log_error("THREAD", "kmalloc thread failed");
         return NULL;
     }
+    memset(thread, 0, sizeof(thread_t));
 
     void* stack = kmalloc(THREAD_STACK_SIZE);
     if (!stack) {
@@ -29,8 +31,9 @@ thread_t* thread_create(process_t* proc, void (*entry)(void)) {
     thread->stack = stack;
     thread->next = NULL;
     thread->wake_tick = 0;
+    thread->kernel_stack_top = (uint64_t)stack + THREAD_STACK_SIZE;
 
-    uint64_t* sp = (uint64_t*)((uint64_t)stack + THREAD_STACK_SIZE);
+    uint64_t* sp = (uint64_t*)thread->kernel_stack_top;
     sp = (uint64_t*)((uint64_t)sp & ~0xFULL);
     *--sp = (uint64_t)thread_exit;
 
@@ -38,12 +41,16 @@ thread_t* thread_create(process_t* proc, void (*entry)(void)) {
     thread->context.rsp = (uint64_t)sp;
     thread->context.rbp = 0;
     thread->context.rbx = 0;
+    thread->context.cs = 0x08;
+    thread->context.ss = 0x10;
+    thread->context.rflags = 0x202;
     thread->context.r12 = 0;
     thread->context.r13 = 0;
     thread->context.r14 = 0;
     thread->context.r15 = 0;
 
-    log_debug("THREAD", "Thread %u cree entry=%p", thread->id, (void*)entry);
+    log_debug("THREAD", "Thread %u cree (Kernel) entry=%p kstack=%p",
+        thread->id, (void*)entry, (void*)thread->kernel_stack_top);
     return thread;
 }
 

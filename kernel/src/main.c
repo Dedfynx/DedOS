@@ -70,7 +70,7 @@ static void hcf(void) {
 //
 void task_a(void) {
     int i = 0;
-    while (i < 10) {
+    while (i < 6) {
         log_info("TASK_A", "Iter : %d", i);
         i++;
         thread_sleep(500);
@@ -79,7 +79,7 @@ void task_a(void) {
 
 void task_b(void) {
     int i = 0;
-    while (i < 5) {
+    while (i < 3) {
         log_info("TASK_B", "Iter : %d", i);
         i++;
         thread_sleep(1000);
@@ -163,7 +163,7 @@ void kmain(void) {
 
     __asm__ volatile("sti");
 
-    log_info("KERNEL", "DedOS v0.1");
+    log_info("KERNEL", "DedOS v0.9");
     log_debug("TEST", "Framebuffer: %u x %u", framebuffer->width, framebuffer->height);
     log_debug("TEST", "Adresse kernel: %p", &kmain);
 

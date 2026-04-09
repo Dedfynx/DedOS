@@ -11,10 +11,7 @@ typedef enum {
     THREAD_DEAD,
 } thread_state_t;
 
-typedef struct {
-    uint64_t rip, rsp, rbp, rbx;
-    uint64_t r12, r13, r14, r15;
-} thread_context_t;
+typedef registers_t thread_context_t;
 
 struct process_t;
 
@@ -25,6 +22,7 @@ typedef struct thread_t {
     void* stack;
     uint64_t wake_tick;
     uint8_t quantum;
+    uint64_t kernel_stack_top;
     struct process_t* process;
     struct thread_t* next;
 } thread_t;

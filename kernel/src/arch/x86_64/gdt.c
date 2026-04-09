@@ -31,8 +31,8 @@ void gdt_init(void) {
     gdt_set_entry(0, 0x00, 0x00);                                                           // Null descriptor
     gdt_set_entry(1, GDT_PRESENT | GDT_KERNEL | GDT_CODE, GDT_GRANULARITY | GDT_LONGMODE);  // Kernel Code
     gdt_set_entry(2, GDT_PRESENT | GDT_KERNEL | GDT_DATA, 0x00);                            // Kernel Data
-    gdt_set_entry(3, GDT_PRESENT | GDT_USER | GDT_DATA, 0);                                 // User Data
-    gdt_set_entry(4, GDT_PRESENT | GDT_USER | GDT_CODE, GDT_GRANULARITY | GDT_LONGMODE);    // User Code
+    gdt_set_entry(3, GDT_PRESENT | GDT_USER | GDT_CODE, GDT_GRANULARITY | GDT_LONGMODE);    // User Code
+    gdt_set_entry(4, GDT_PRESENT | GDT_USER | GDT_DATA, 0x00);                              // User Data
 
     uint64_t tss_base = (uint64_t)&tss;
     uint32_t tss_limit = sizeof(tss) - 1;
@@ -40,7 +40,7 @@ void gdt_init(void) {
     gdt[5].limit_low = tss_limit & 0xFFFF;
     gdt[5].base_low = tss_base & 0xFFFF;
     gdt[5].base_mid = (tss_base >> 16) & 0xFF;
-    gdt[5].access = 0x89;  // Type 0x9 (TSS disponible), Present, DPL 0
+    gdt[5].access = 0x89;
     gdt[5].granularity = ((tss_limit >> 16) & 0x0F);
     gdt[5].base_high = (tss_base >> 24) & 0xFF;
 
