@@ -1,7 +1,7 @@
 #include <fs/tmpfs.h>
 #include <fs/vfs.h>
 #include <mm/heap.h>
-#include <libc/string.h>
+#include <lib/string.h>
 #include <utils/log.h>
 
 struct tmpfs_node {

@@ -1,7 +1,7 @@
 #include <fs/initrd.h>
 #include <fs/tmpfs.h>
 #include <fs/vfs.h>
-#include <libc/string.h>
+#include <lib/string.h>
 #include <utils/log.h>
 #include <limine.h>
 

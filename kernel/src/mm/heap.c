@@ -3,7 +3,7 @@
 #include <mm/vmm.h>
 #include <stdint.h>
 #include <utils/log.h>
-#include <libc/string.h>
+#include <lib/string.h>
 
 extern uint64_t hhdm_offset;
 

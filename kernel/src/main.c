@@ -22,7 +22,7 @@
 #include <mm/heap.h>
 #include <acpi/acpi.h>
 #include <acpi/madt.h>
-#include <libc/string.h>
+#include <lib/string.h>
 #include <scheduler/scheduler.h>
 #include <scheduler/process.h>
 #include <scheduler/thread.h>

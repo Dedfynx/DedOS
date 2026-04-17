@@ -4,7 +4,7 @@
 #include <mm/heap.h>
 #include <utils/log.h>
 #include <stdint.h>
-#include <libc/string.h>
+#include <lib/string.h>
 
 extern volatile uint64_t timer_ticks;
 static uint64_t next_tid = 0;
